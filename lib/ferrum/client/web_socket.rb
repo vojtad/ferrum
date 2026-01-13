@@ -23,6 +23,7 @@ module Ferrum
           tcp = TCPSocket.new(uri.host, port)
           ssl_context = OpenSSL::SSL::SSLContext.new
           @sock = OpenSSL::SSL::SSLSocket.new(tcp, ssl_context)
+          @sock.hostname = uri.host
           @sock.sync_close = true
           @sock.connect
         else
