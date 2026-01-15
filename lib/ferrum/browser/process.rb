@@ -185,18 +185,20 @@ module Ferrum
       end
 
       def parse_json_version(url)
-        url = URI.join(url, "/json/version")
+        url = Addressable::URI.parse(url) if url.is_a?(String)
+        version_url = Addressable::URI.join(url, '/json/version')
+        version_url.query_values = url.query_values
 
         if %w[wss ws].include?(url.scheme)
-          url.scheme = case url.scheme
-                       when "ws"
-                         "http"
-                       when "wss"
-                         "https"
-                       end
+          version_url.scheme = case url.scheme
+                               when "ws"
+                                 "http"
+                               when "wss"
+                                 "https"
+                               end
         end
 
-        response = JSON.parse(::Net::HTTP.get(URI(url.to_s)))
+        response = JSON.parse(::Net::HTTP.get(URI(version_url.to_s)))
 
         @v8_version = response["V8-Version"]
         @browser_version = response["Browser"]
